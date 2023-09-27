@@ -3,14 +3,18 @@ import React from 'react';
 
 function generateColor(index) {
   const palette = [
-    "#003f5c", "#2f4b7c", "#665191", "#a05195", "#d45087",
-    "#f95d6a", "#ff7c43", "#ffa600", "#ffcc00", "#ffcc00"
+    "#FF5733", "#33FF57", "#5733FF", "#FF3367", "#38B71D",
+    "#FF33A6", "#00CCFF", "#FF9900", "#9900FF", "#FF0000",
+    "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF",
+    "#FFC300", "#3DCCC7", "#7D3DCC", "#B71D6E",
   ];
 
   const colorIndex = index % palette.length;
 
   return palette[colorIndex];
 }
+
+
 class BarChart extends React.Component {
   constructor(props) {
     super(props);
@@ -144,7 +148,7 @@ class BarChart extends React.Component {
       const y = index * 40 + 15;
 
       return (
-        <text key={`legend-${index}`} x={x} y={y} fill={`rgb(0, ${index * 70}, 200)`} fontWeight="bold">
+        <text key={`legend-${index}`} x={x} y={y} fill={generateColor(index)} fontWeight="bold">
           {item.label}
         </text>
       );
