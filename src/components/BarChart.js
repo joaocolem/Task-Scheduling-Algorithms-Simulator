@@ -18,7 +18,6 @@ function generateColor(index) {
 class BarChart extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       items: props.items,
       currentDuration: 0, // Inicialmente, a duração atual é 0.
@@ -28,24 +27,22 @@ class BarChart extends React.Component {
     this.chartHeight = 500;
     this.numIncrements = 0; // Inicializamos com 0, iremos calcular em componentDidMount.
   }
-
   
-
   componentDidMount() {
     // Calcule o número de incrementos com base na maior duração de todos os itens.
-    const maxDuration = Math.max(
+    const maxDuration = Math.max(// pega o valor maximo do array retornado pelo map e utilizando o spread operator para acessar os elementos do array
       ...this.state.items.map((item) => {
         let maxTime = 0;
 
         item.times.forEach((time) => {
-          maxTime = Math.max(maxTime, time.startTime + time.duration);
+          maxTime = Math.max(maxTime, time.startTime + time.duration); //para cada item pega o maior tempo entre o maxTime e a duracao do item
         });
 
         item.waitTimes.forEach((waitTime) => {
-          maxTime = Math.max(maxTime, waitTime.startTime + waitTime.duration);
+          maxTime = Math.max(maxTime, waitTime.startTime + waitTime.duration); //para cada item pega o maior tempo entre o maxTime e a duracao da espera do item
         });
 
-        return maxTime;
+        return maxTime; //retorna o maior tempo de cada item
       })
     );
 
@@ -63,12 +60,12 @@ class BarChart extends React.Component {
 
   componentWillUnmount() {
     // Certifique-se de limpar o intervalo quando o componente é desmontado.
-    clearInterval(this.animationInterval);
+    clearInterval(this.animationInterval); 
   }
 
   renderBars(currentDuration) {
     const { items } = this.state;
-    let currentTime = 0;
+    let currentTime;
 
     return items.map((item, index) => {
       const bars = [];

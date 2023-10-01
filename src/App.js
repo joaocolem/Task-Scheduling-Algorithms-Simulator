@@ -1,23 +1,24 @@
 import React from 'react';
-import BarChart from './components/BarChart';
+import BarChart from './components/RoundRobin';
 import './App.css';
+import RoundRobin from './components/RoundRobin';
 
-// Função para dividir um intervalo em intervalos de 1 segundo
-function splitInterval(interval) {
-  const result = [];
-  for (let i = interval.startTime; i < interval.startTime + interval.duration; i++) {
-    result.push({ startTime: i, duration: 1 });
-  }
-  return result;
-}
+//Round-Robin:
+
+// subtrair quantum pela duracao do processo;
+// pegar processos que tem duracao diferente de 0, ou seja ainda precisam ser executados;
+// opcao de escolher duracao e quantos processos serao executados;
+// incremento de processos dinamico, ou seja, adicionar 2 ou 1 processo a cada 1 segundo;
+
+
+
 
 function App() {
   const items = [
     {
       label: 'P1',
       times: [
-        { startTime: 0, duration: 2 },
-        { startTime: 4, duration: 3 },
+        { startTime: 0, duration: 4 },
       ],
       waitTimes: [{ startTime: 2, duration: 2 }],
     },
@@ -28,7 +29,9 @@ function App() {
     },
     {
       label: 'P3',
-      times: [{ startTime: 7, duration: 2 },{startTime: 4, duration: 1}],
+      times: [
+        { startTime: 7, duration: 2 },
+      ],
       waitTimes: [{ startTime: 3, duration: 4 }],
     },
     {
@@ -43,25 +46,10 @@ function App() {
     },
   ];
 
-  // Função para dividir todos os intervalos de um array de objetos
-  function splitIntervals(items) {
-    const result = [];
-    items.forEach((item) => {
-      const newItem = { ...item };
-      newItem.times = newItem.times.flatMap(splitInterval);
-      newItem.waitTimes = newItem.waitTimes.flatMap(splitInterval);
-      result.push(newItem);
-    });
-    return result;
-  }
-
-  // Aplicar a função para dividir os intervalos
-  const newItems = splitIntervals(items);
-
   return (
     <div className="App">
       <h1>Escalonador de processos</h1>
-      <BarChart items={newItems} />
+      <RoundRobin items={items} quantum={2}  />
     </div>
   );
 }
