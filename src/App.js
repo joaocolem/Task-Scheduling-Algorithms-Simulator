@@ -8,7 +8,7 @@ import  calcularSRTF from './Algoritmos/SRTF';
 
 import TabelaResultados from './components/Tabela/TabelaResultados';
 import SchedulerSelector from './components/Seletor/SchedulerSelector';
-import ProcessoComponent from './components/ProcessoComponent';
+
 
 // Função para dividir todos os intervalos de um array de objetos
 function splitIntervals(items) {
