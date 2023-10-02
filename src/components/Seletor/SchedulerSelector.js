@@ -45,7 +45,9 @@ function SchedulerSelector(props) {
         <input type="number" value={quantum} onChange={handleQuantumChange} />
       </div>
       <br />
-      <button onClick={handleSaveClick}>OK</button>
+      <button onClick={handleSaveClick} disabled={selectedAlgorithmIndex === -1}>
+        OK
+      </button>
     </div>
   );
 }
