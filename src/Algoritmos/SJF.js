@@ -2,6 +2,8 @@
 
 // Função para calcular SJF (Shortest Job First)
 function calcularSJF(processos) {
+
+    console.log(processos);
     // Ordenar os processos por tempo de chegada
     processos.sort((a, b) => a.tempoDeChegada - b.tempoDeChegada);
   
@@ -10,6 +12,7 @@ function calcularSJF(processos) {
     let tempoTotalExecucao = 0;
     let tempoTotalEspera = 0;
     let trocasDeContexto = 0;
+    let label = "Shortest Job First"
   
     while (processos.length > 0) {
       // Filtrar os processos que já chegaram
@@ -52,6 +55,7 @@ function calcularSJF(processos) {
     const resultadoComMetricas = {
       resultado,
       metricas: {
+        label,
         tempoMedioExecucao,
         tempoMedioEspera,
         trocasDeContexto,
@@ -61,5 +65,5 @@ function calcularSJF(processos) {
     return resultadoComMetricas;
   }
   
-  module.exports = calcularSJF;
+  export default calcularSJF;
   

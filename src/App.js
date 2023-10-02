@@ -1,10 +1,14 @@
-import React from 'react';
+import React,  { useState } from 'react';
 import BarChart from './components/BarChart';
 import './App.css';
 
 // Importe a função calcularSJF do arquivo sjf.js
-import calcularSJF from './Algoritmos/SJF';
-import calcularSRTF from './Algoritmos/SRTF';
+import  calcularSJF  from './Algoritmos/SJF';
+import  calcularSRTF from './Algoritmos/SRTF';
+
+import TabelaResultados from './components/Tabela/TabelaResultados';
+import SchedulerSelector from './components/Seletor/SchedulerSelector';
+import ProcessoComponent from './components/ProcessoComponent';
 
 // Função para dividir todos os intervalos de um array de objetos
 function splitIntervals(items) {
@@ -40,7 +44,20 @@ function splitIntervals(items) {
 
 
 function App() {
+
+  
+  const [selectedInfo, setSelectedInfo] = useState(null);
+
+  const handleSave = (info) => {
+    setSelectedInfo(info);
+  };
+
+
+
   // Lista de processos (substitua com seus próprios valores)
+
+  
+
   const processos = [
     { label: 'P1', tempoDeChegada: 3, duracao: 2, prioridade: 3 },
     { label: 'P2', tempoDeChegada: 0, duracao: 4, prioridade: 2 },
@@ -50,21 +67,39 @@ function App() {
   ];
 
   // Calcular SJF usando a função importada de sjf.js
-  //const { resultado, metricas } = calcularSJF(processos);
-  const { resultado, metricas } = calcularSRTF(processos);
+  
+  const resultadoSJF = calcularSJF(processos.slice());
+  const resultadoSRTF = calcularSRTF(processos.slice());
 
 
 
   // Formatar a saída para o formato "items"
-  const newItems = splitIntervals(resultado);
-  console.log(metricas);
+  const newItemsSJF = splitIntervals(resultadoSJF.resultado);
+  const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
+
+
+  const resultadosArray = [resultadoSJF, resultadoSRTF];
+  const resultadosNewItems = [newItemsSJF, newItemsSRTF];
+
 
 
   return (
     <div className="App">
+
+<div>
+      <h1>Configurações de Escalonamento</h1>
+      <SchedulerSelector onSave={handleSave} />
+
+    </div>
+    {selectedInfo && (    
+    <div>
       <h1>Escalonador de processos</h1>
-      <BarChart items={newItems} />
+
+      <BarChart items={resultadosNewItems[selectedInfo.algorithmIndex]} />
       
+      <TabelaResultados resultadosArray={resultadosArray} />
+      </div>
+    )}
     </div>
   );
 }

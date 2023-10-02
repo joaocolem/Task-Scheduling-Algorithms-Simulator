@@ -1,11 +1,15 @@
 // Função para calcular SRTF (Shortest Remaining Time First)
 function calcularSRTF(processos) {
+
+    console.log(processos);
+
     let tempoAtual = 0;
     const resultado = [];
     let tempoTotalExecucao = 0;
     let tempoTotalEspera = 0;
     let processoAnterior = null;
     let trocasDeContexto = 0;
+    let label = "Shotest Remaining Time First";
   
     while (processos.length > 0) {
       // Filtrar os processos que já chegaram
@@ -92,6 +96,7 @@ function calcularSRTF(processos) {
     const resultadoComMetricas = {
       resultado,
       metricas: {
+        label,
         tempoMedioExecucao,
         tempoMedioEspera,
         trocasDeContexto,
@@ -101,5 +106,5 @@ function calcularSRTF(processos) {
     return resultadoComMetricas;
   }
   
-  module.exports = calcularSRTF;
+export default calcularSRTF;
   
