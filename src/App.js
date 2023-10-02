@@ -52,13 +52,13 @@ function App() {
   const [display, setDisplay] = useState(false);
 
   useEffect(() => {
-    console.log('Updated Processes:', processos);
     console.log("Info:",selectedInfo)
+    const copiaProcessos = processos;
     if (selectedInfo) {
       console.log(processos.slice());
       // Calcular SJF e SRTF usando a função importada de sjf.js
-      const resultadoSJF = calcularSJF(processos.slice());
-      const resultadoSRTF = calcularSRTF(processos.slice());
+      const resultadoSJF = calcularSJF(copiaProcessos.slice());
+      const resultadoSRTF = calcularSRTF(copiaProcessos.slice());
 
       // Formatar a saída para o formato "items"
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
@@ -68,7 +68,7 @@ function App() {
       setResultadosNewItems([newItemsSJF, newItemsSRTF]);
       setDisplay(true);
     }
-  }, [selectedInfo, processos]);
+  }, [selectedInfo]);
 
   const handleSave = (info) => {
     setSelectedInfo(info);
