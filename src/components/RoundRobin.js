@@ -9,29 +9,38 @@ import { splitIntervals } from './SplitIntervals.js';
     //
     ////
     items.forEach((item) => {
+        item.times[0].startTime = start;
+        start += quantum;
+    });
+
+    items.forEach((item) => {
+        const newTimes = [];
+
         item.times.forEach((time) => {
             const diff = time.duration - quantum;
             
             if ( diff > 0 ) {
-                time.duration = quantum;
                 const isEven = diff % 2 === 0;
                 const pieces =  isEven ? parseInt(diff/quantum) : parseInt(diff/quantum) + 1;
                 
                 for( let i=0; i < pieces; i++){
-                    let nextStart = (items.length * quantum) + cont;
+                    const nextStart = (items.length * quantum) + cont;
 
                     if(!isEven && i === pieces - 1) {
-                        item.times.push({ startTime: nextStart, duration: 1 });
+                        newTimes.push({ startTime: nextStart, duration: 1 });
+                        cont += quantum;
                     } else {
-                        item.times.push({ startTime: nextStart, duration: quantum });
+                        newTimes.push({ startTime: nextStart, duration: quantum });
                         cont += quantum;
                     }
                 }
-            };
+                console.log(newTimes);
+            }
         });
+        item.times = newTimes.length >= 1 ? newTimes: item.times;
     });
 
-    console.log(items);
+
     const newItems = splitIntervals(items);
     return (
         <BarChart items={newItems}/>
