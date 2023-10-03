@@ -11,7 +11,7 @@ function calcularSJF(processos) {
     const resultado = [];
     let tempoTotalExecucao = 0;
     let tempoTotalEspera = 0;
-    let trocasDeContexto = 0;
+    let trocasDeContexto = -1;
     let label = "Shortest Job First"
   
     while (processos.length > 0) {

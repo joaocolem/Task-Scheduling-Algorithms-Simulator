@@ -13,9 +13,9 @@ const ProcessTable = ({ processes, setProcesses }) => {
     
     const parsedNewProcess = {
       ...newProcess,
-      tempoDeChegada: parseInt(newProcess.tempoDeChegada, 10), // Parse as an integer
-      duracao: parseInt(newProcess.duracao, 10), // Parse as an integer
-      prioridade: parseInt(newProcess.prioridade, 10), // Parse as an integer
+      tempoDeChegada: parseInt(newProcess.tempoDeChegada, 10),
+      duracao: parseInt(newProcess.duracao, 10), 
+      prioridade: parseInt(newProcess.prioridade, 10), 
     };
   
     setProcesses([...processes, parsedNewProcess]);

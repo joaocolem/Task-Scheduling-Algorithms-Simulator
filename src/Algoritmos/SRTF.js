@@ -9,7 +9,7 @@ function calcularSRTF(processos) {
     let tempoTotalEspera = 0;
     let processoAnterior = null;
     let trocasDeContexto = 0;
-    let label = "Shotest Remaining Time First";
+    let label = "Shortest Remaining Time First";
   
     while (processos.length > 0) {
       // Filtrar os processos que já chegaram
@@ -102,7 +102,7 @@ function calcularSRTF(processos) {
         trocasDeContexto,
       },
     };
-  
+    console.log("Processo", processos);
     return resultadoComMetricas;
   }
   
