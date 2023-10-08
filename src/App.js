@@ -5,6 +5,7 @@ import './App.css';
 // Importe a função calcularSJF do arquivo sjf.js
 import  calcularSJF  from './Algoritmos/SJF';
 import  calcularSRTF from './Algoritmos/SRTF';
+import calcularRR from './Algoritmos/RR';
 
 import TabelaResultados from './components/Tabela/TabelaResultados';
 import SchedulerSelector from './components/Seletor/SchedulerSelector';
@@ -56,8 +57,8 @@ function App() {
       
       const resultadoSJF = calcularSJF(processos.map(processo => ({ ...processo })));
       const resultadoSRTF = calcularSRTF(processos.map(processo => ({ ...processo })));
+      const resultadoRR = calcularRR(processos.map(processo => ({...processo})), 2);
       
-
       // Formatar a saída para o formato "items"
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
       const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
