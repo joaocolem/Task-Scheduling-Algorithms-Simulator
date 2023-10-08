@@ -1,5 +1,5 @@
-import React from 'react';
-import BarChart from './components/RoundRobin';
+import React,  { useState, useEffect } from 'react';
+import BarChart from './components/BarChart';
 import './App.css';
 import RoundRobin from './components/RoundRobin';
 
@@ -12,44 +12,97 @@ import RoundRobin from './components/RoundRobin';
 
 
 
+// Importe a função calcularSJF do arquivo sjf.js
+import  calcularSJF  from './Algoritmos/SJF';
+import  calcularSRTF from './Algoritmos/SRTF';
+import calcularRR from './Algoritmos/RR';
+
+import TabelaResultados from './components/Tabela/TabelaResultados';
+import SchedulerSelector from './components/Seletor/SchedulerSelector';
+import ProcessTable from './components/Process/ProcessTable';
+
+
+// Função para dividir todos os intervalos de um array de objetos
+function splitIntervals(items) {
+  const result = [];
+  items.forEach((item) => {
+    const newItem = { ...item };
+    newItem.times = [];
+    newItem.waitTimes = [];
+
+    item.times.forEach((time) => {
+      for (let i = 0; i < time.duration; i++) {
+        newItem.times.push({
+          startTime: time.startTime + i,
+          duration: 1,
+        });
+      }
+    });
+
+    item.waitTimes.forEach((waitTime) => {
+      for (let i = 0; i < waitTime.duration; i++) {
+        newItem.waitTimes.push({
+          startTime: waitTime.startTime + i,
+          duration: 1,
+        });
+      }
+    });
+
+    result.push(newItem);
+  });
+  return result;
+}
+
+
 
 function App() {
-  const items = [
-    {
-      label: 'P1',
-      times: [
-        { startTime: 0, duration: 4 },
-      ],
-      waitTimes: [{ startTime: 2, duration: 2 }],
-    },
-    {
-      label: 'P2',
-      times: [{ startTime: 2, duration: 2 }],
-      waitTimes: [{ startTime: 0, duration: 2 }],
-    },
-    {
-      label: 'P3',
-      times: [
-        { startTime: 7, duration: 2 },
-      ],
-      waitTimes: [{ startTime: 3, duration: 4 }],
-    },
-    {
-      label: 'P4',
-      times: [{ startTime: 9, duration: 1 }],
-      waitTimes: [{ startTime: 3, duration: 6 }],
-    },
-    {
-      label: 'P5',
-      times: [{ startTime: 10, duration: 2 }],
-      waitTimes: [{ startTime: 3, duration: 7 }],
-    },
-  ];
+  const [selectedInfo, setSelectedInfo] = useState(null);
+  const [processos, setProcessos] = useState([]);
+  const [resultadosArray, setResultadosArray] = useState([]);
+  const [resultadosNewItems, setResultadosNewItems] = useState([]);
+  const [display, setDisplay] = useState(false);
+
+  useEffect(() => {
+    if (selectedInfo) {
+      
+      const resultadoSJF = calcularSJF(processos.map(processo => ({ ...processo })));
+      const resultadoSRTF = calcularSRTF(processos.map(processo => ({ ...processo })));
+      const resultadoRR = calcularRR(processos.map(processo => ({...processo})), 2);
+      
+      // Formatar a saída para o formato "items"
+      const newItemsSJF = splitIntervals(resultadoSJF.resultado);
+      const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
+
+      setResultadosArray([resultadoSJF, resultadoSRTF]);
+      setResultadosNewItems([newItemsSJF, newItemsSRTF]);
+      setDisplay(true);
+    }
+  }, [selectedInfo]);
+
+  const handleSave = (info) => {
+    setSelectedInfo(info);
+  };
 
   return (
     <div className="App">
-      <h1>Escalonador de processos</h1>
-      <RoundRobin items={items} quantum={2}  />
+      <div>
+        <h1>Configurações de Escalonamento</h1>
+        <SchedulerSelector onSave={handleSave} />
+      </div>
+
+      {display && (
+        <div>
+          <h1>Escalonador de processos</h1>
+
+          <BarChart items={resultadosNewItems[selectedInfo.algorithmIndex]} />
+
+          <TabelaResultados resultadosArray={resultadosArray} />
+        </div>
+      )}
+
+      <div>
+        <ProcessTable processes={processos} setProcesses={setProcessos} />
+      </div>
     </div>
   );
 }

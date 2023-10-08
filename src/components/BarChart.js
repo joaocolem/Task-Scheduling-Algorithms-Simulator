@@ -24,7 +24,7 @@ class BarChart extends React.Component {
     };
 
     this.chartWidth = 1000;
-    this.chartHeight = 500;
+    this.chartHeight = 300;
     this.numIncrements = 0; // Inicializamos com 0, iremos calcular em componentDidMount.
   }
   
