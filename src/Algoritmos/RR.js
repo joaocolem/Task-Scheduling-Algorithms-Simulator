@@ -16,48 +16,47 @@ function calculateRR(processos, quantum) {
     let trocasDeContexto = -1;
     let label = "Round Robin";
     
-    if (sortedProcessos.length === 0) {
-      tempoAtual++;
-    } else {
-        while(sortedProcessos.length > 0) {
-            const proximoProcesso = sortedProcessos.shift();
-            const startTime = tempoAtual;
-            const endTime = startTime + proximoProcesso.duracao;
-            const waitTime = startTime - proximoProcesso.tempoDeChegada;
-
-            resultado.push({
-                label: proximoProcesso.label,
-                times: [{ startTime, duration: proximoProcesso.duracao }],
-                waitTimes: [{ startTime: proximoProcesso.tempoDeChegada, duration: waitTime }],
-            });
-
-            tempoTotalExecucao += endTime - startTime;
-            tempoTotalEspera += waitTime;
-            tempoAtual += quantum;
-            trocasDeContexto++;
+    while(sortedProcessos.length > 0) {
+        if (sortedProcessos.length === 0) {
+            tempoAtual++;
         }
+        const proximoProcesso = sortedProcessos.shift();
+        const startTime = tempoAtual;
+        const endTime = startTime + proximoProcesso.duracao;
+        const waitTime = startTime - proximoProcesso.tempoDeChegada;
 
-        // // Ordenar o resultado por label
-        resultado.sort((a, b) => a.label.localeCompare(b.label));
+        resultado.push({
+            label: proximoProcesso.label,
+            times: [{ startTime, duration: proximoProcesso.duracao }],
+            waitTimes: [{ startTime: proximoProcesso.tempoDeChegada, duration: waitTime }],
+        });
 
-        // Calcular o tempo médio de execução e o tempo médio de espera
-        const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
-        const tempoMedioEspera = tempoTotalEspera / resultado.length;
-
-        // Criar o objeto que contém o resultado e as métricas
-        const resultadoComMetricas = {
-            resultado,
-            metricas: {
-            label,
-            tempoMedioExecucao,
-            tempoMedioEspera,
-            trocasDeContexto,
-            },
-        };
-
-        console.log(resultadoComMetricas);
-        return resultadoComMetricas;
+        tempoTotalExecucao += endTime - startTime;
+        tempoTotalEspera += waitTime;
+        tempoAtual += quantum;
+        trocasDeContexto++;
     }
+
+    // // Ordenar o resultado por label
+    resultado.sort((a, b) => a.label.localeCompare(b.label));
+
+    // Calcular o tempo médio de execução e o tempo médio de espera
+    const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
+    const tempoMedioEspera = tempoTotalEspera / resultado.length;
+
+    // Criar o objeto que contém o resultado e as métricas
+    const resultadoComMetricas = {
+        resultado,
+        metricas: {
+        label,
+        tempoMedioExecucao,
+        tempoMedioEspera,
+        trocasDeContexto,
+        },
+    };
+
+    console.log(resultadoComMetricas);
+    return resultadoComMetricas;
 }
 
 function dividirDuracaoQuantum(processos, quantum) {
