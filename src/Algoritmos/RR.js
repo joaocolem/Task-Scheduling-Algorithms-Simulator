@@ -16,6 +16,7 @@ function calculateRR(processos, quantum) {
     let trocasDeContexto = -1;
     let label = "Round Robin";
     
+<<<<<<< HEAD
     console.log(processos);
     // if (sortedProcessos.length === 0) {
     //   tempoAtual++;
@@ -59,6 +60,49 @@ function calculateRR(processos, quantum) {
     //     console.log(resultadoComMetricas);
     //     return resultadoComMetricas;
     // }
+=======
+    while(sortedProcessos.length > 0) {
+        if (sortedProcessos.length === 0) {
+            tempoAtual++;
+        }
+        const proximoProcesso = sortedProcessos.shift();
+        const startTime = tempoAtual;
+        const endTime = startTime + proximoProcesso.duracao;
+        const waitTime = startTime - proximoProcesso.tempoDeChegada;
+
+        resultado.push({
+            label: proximoProcesso.label,
+            times: [{ startTime, duration: proximoProcesso.duracao }],
+            waitTimes: [{ startTime: proximoProcesso.tempoDeChegada, duration: waitTime }],
+        });
+
+        tempoTotalExecucao += endTime - startTime;
+        tempoTotalEspera += waitTime;
+        tempoAtual += quantum;
+        trocasDeContexto++;
+    }
+
+    // // Ordenar o resultado por label
+    resultado.sort((a, b) => a.label.localeCompare(b.label));
+
+    // Calcular o tempo médio de execução e o tempo médio de espera
+    const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
+    const tempoMedioEspera = tempoTotalEspera / resultado.length;
+
+    // Criar o objeto que contém o resultado e as métricas
+    const resultadoComMetricas = {
+        resultado,
+        metricas: {
+        label,
+        tempoMedioExecucao,
+        tempoMedioEspera,
+        trocasDeContexto,
+        },
+    };
+
+    console.log(resultadoComMetricas);
+    return resultadoComMetricas;
+>>>>>>> f442f17d2643e5c10f1a73199c35b13d53b81f7d
 }
 
 function dividirDuracaoQuantum(processos, quantum) {
