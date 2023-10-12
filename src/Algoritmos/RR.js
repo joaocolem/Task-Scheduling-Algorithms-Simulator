@@ -7,7 +7,8 @@
 */
 
 function calculateRR(processos, quantum) {
-    const sortedProcessos = dividirDuracaoQuantum(processos, 2).sort((a, b) => a.tempoDeChegada - b.tempoDeChegada);
+    const sortedProcessos = ajustarDuracaoQuantum(processos, quantum).sort((a, b) => a.tempoDeChegada - b.tempoDeChegada);
+
     const resultado = [];
 
     let tempoAtual = 0;
@@ -16,59 +17,14 @@ function calculateRR(processos, quantum) {
     let trocasDeContexto = -1;
     let label = "Round Robin";
     
-<<<<<<< HEAD
-    console.log(processos);
-    // if (sortedProcessos.length === 0) {
-    //   tempoAtual++;
-    // } else {
-    //     while(sortedProcessos.length > 0) {
-    //         const proximoProcesso = sortedProcessos.shift();
-    //         const startTime = tempoAtual;
-    //         const endTime = startTime + proximoProcesso.duracao;
-    //         const waitTime = startTime - proximoProcesso.tempoDeChegada;
-
-    //         resultado.push({
-    //             label: proximoProcesso.label,
-    //             times: [{ startTime, duration: proximoProcesso.duracao }],
-    //             waitTimes: [{ startTime: proximoProcesso.tempoDeChegada, duration: waitTime }],
-    //         });
-
-    //         tempoTotalExecucao += endTime - startTime;
-    //         tempoTotalEspera += waitTime;
-    //         tempoAtual += quantum;
-    //         trocasDeContexto++;
-    //     }
-
-    //     // // Ordenar o resultado por label
-    //     resultado.sort((a, b) => a.label.localeCompare(b.label));
-
-    //     // Calcular o tempo médio de execução e o tempo médio de espera
-    //     const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
-    //     const tempoMedioEspera = tempoTotalEspera / resultado.length;
-
-    //     // Criar o objeto que contém o resultado e as métricas
-    //     const resultadoComMetricas = {
-    //         resultado,
-    //         metricas: {
-    //         label,
-    //         tempoMedioExecucao,
-    //         tempoMedioEspera,
-    //         trocasDeContexto,
-    //         },
-    //     };
-
-    //     console.log(resultadoComMetricas);
-    //     return resultadoComMetricas;
-    // }
-=======
     while(sortedProcessos.length > 0) {
         if (sortedProcessos.length === 0) {
             tempoAtual++;
         }
         const proximoProcesso = sortedProcessos.shift();
-        const startTime = tempoAtual;
+        const startTime = proximoProcesso.tempoDeChegada;
         const endTime = startTime + proximoProcesso.duracao;
-        const waitTime = startTime - proximoProcesso.tempoDeChegada;
+        const waitTime = Math.abs(proximoProcesso.duracao - proximoProcesso.tempoDeChegada);
 
         resultado.push({
             label: proximoProcesso.label,
@@ -99,58 +55,38 @@ function calculateRR(processos, quantum) {
         trocasDeContexto,
         },
     };
-
-    console.log(resultadoComMetricas);
     return resultadoComMetricas;
->>>>>>> f442f17d2643e5c10f1a73199c35b13d53b81f7d
 }
 
-function dividirDuracaoQuantum(processos, quantum) {
+function ajustarDuracaoQuantum(processos, quantum) {
     const newProcessos = [];
-    let tempoFinalFila = processos.length * quantum;
-    let sortedProcess = processos.sort((a, b) => a.tempoDeChegada - b.tempoDeChegada);
-    let menorTempoChegada = sortedProcess[0].tempoDeChegada;
 
-    sortedProcess.forEach(function(processo){
-        const diff = processo.duracao - quantum;
+    [ ...processos].forEach(function(processo) {
+        let remainingDuration = processo.duracao;
 
-        if(diff <= 0) {
-            menorTempoChegada = menorTempoChegada > processo.tempoDeChegada + quantum ? processo.tempoDeChegada : menorTempoChegada;
-
-            newProcessos.push({label: processo.label, tempoDeChegada: menorTempoChegada, duracao: quantum, prioridade : processo.prioridade});
-            menorTempoChegada += quantum;
-        } else{
-            if(diff % quantum === 0) {
-                menorTempoChegada = menorTempoChegada > processo.tempoDeChegada + quantum ? processo.tempoDeChegada : menorTempoChegada;
-                newProcessos.push({label: processo.label, tempoDeChegada: menorTempoChegada, duracao: quantum, prioridade : processo.prioridade});
-                menorTempoChegada += quantum;
-
-                for(let i=0 ; i < (diff/quantum) - 1; i++){
-                    newProcessos.push({label: processo.label, tempoDeChegada: tempoFinalFila, duracao: quantum, prioridade : processo.prioridade});
-                    tempoFinalFila += quantum;
-                };
-
+        while (remainingDuration > 0) {
+            if (remainingDuration <= quantum) {
+                processo.duracao = remainingDuration;
+                newProcessos.push({ ...processo });
+                remainingDuration = 0;
             } else {
-                menorTempoChegada = menorTempoChegada > processo.tempoDeChegada + quantum + 1 ? processo.tempoDeChegada : menorTempoChegada;
-                newProcessos.push({label: processo.label, tempoDeChegada: menorTempoChegada, duracao: quantum, prioridade : processo.prioridade});
-                menorTempoChegada += quantum;
-
-                if (diff - 1 !== 0) {
-                    for(let i=0 ; i<(diff - 1)/quantum; i++){
-                        newProcessos.push({label: processo.label, tempoDeChegada: tempoFinalFila, duracao: quantum, prioridade : processo.prioridade});
-                        tempoFinalFila += quantum;
-                    }
-                    newProcessos.push({label: processo.label, tempoDeChegada: tempoFinalFila, duracao: 1, prioridade : processo.prioridade});
-                    tempoFinalFila += quantum;
-                } else {
-                    newProcessos.push({label: processo.label, tempoDeChegada: tempoFinalFila, duracao: 1, prioridade : processo.prioridade});
-                    tempoFinalFila += quantum;
-                }
+                processo.duracao = quantum;
+                newProcessos.push({ ...processo });
+                remainingDuration -= quantum;
             }
         }
     });
 
     return newProcessos;
-};
+}
+
+function ajustarTempoDeChegadaQuantum(processos, quantum) {
+    const newProcessos = [];
+    const sortedProcess = processos.sort((a, b) => a.tempoDeChegada - b.tempoDeChegada);
+
+    
+    
+    return newProcessos;
+}
 
 export default calculateRR;
