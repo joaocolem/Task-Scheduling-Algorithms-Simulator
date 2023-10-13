@@ -1,17 +1,4 @@
-/*
-[x] Fazer com que cada processo tenha no maximo a duracao do quantum
-[x] Se a duracao do procecsso for maior do que o quantum, jogar o restante da duracao para o final da fila.
-    [x] Alterar startime de processos que irao para o final da fila
-[x] Ajustar tempoAtual e o resultado
-[] Ajustar formato do resultado
-[] Ajustar waitTimes
-*/
-
-import { all } from "q";
-
 function calculateRR(processos, quantum) {
-    const resultado = [];
-    
     const newProcessos = normalize(processos, quantum);
     const metricas = calcularMetricas(newProcessos);
     
@@ -55,7 +42,7 @@ function ajustarDuracaoQuantum(processos, quantum) {
 function ajustarTempoDeChegadaQuantum(processos, quantum) {
     // filtrar pela label
     let duracaoProcAnterior = 0;
-    
+
     const labels = [];
     processos.forEach(function(processo){
         if(!labels.includes(processo.label)) {
@@ -64,24 +51,26 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     });
 
     //se houver mais de um objeto jogar objetos para o final da fila
-        //o processo pode ser executado complementamente?
-        // processo.tempoDeChegada + quantum < proximoProcesso.tempoDeChegada;
     const procMaisDeUmObjeto = [];
     const primeirosProcessos = [];
+    const restoProcessos = [];
     labels.forEach(function(label){
         let procMesmaLabel = processos.filter((proc) => proc.label === label);
         if (procMesmaLabel.length > 1) {
-            primeirosProcessos.push(procMesmaLabel.shift());//Remove primeiro elemento do array
+            primeirosProcessos.push(procMesmaLabel.splice(0, 1)[0]);//Remove primeiro elemento do array
             procMaisDeUmObjeto.push(procMesmaLabel);
+        } else {
+            restoProcessos.push(procMesmaLabel[0]);
         }
     });
 
-    // console.log(procMaisDeUmObjeto);
+    // VERIFICA A POSSIBILIDADE DE EXECUTAR MAIS UM QUANTUM DO PROCESSO EM SEQUENCIA
     for(let i=0; i< procMaisDeUmObjeto.length; i++){
         let n = 2;
 
-        while(procMaisDeUmObjeto[i][0]?.tempoDeChegada + quantum**n <= primeirosProcessos[i + 1]?.tempoDeChegada) {
+        while(procMaisDeUmObjeto[i][0]?.tempoDeChegada + quantum**n - 1<= primeirosProcessos[i + 1]?.tempoDeChegada) {
             let processo = procMaisDeUmObjeto[i].shift();
+            
             primeirosProcessos.push(processo);
             n++;
         }
@@ -103,7 +92,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     }
 
     //Junta os arrays
-    processos = primeirosProcessos.concat(procFinalFila);
+    processos = restoProcessos.concat(primeirosProcessos.concat(procFinalFila));
 
     //Seta tempo de chegada com base na duracao do ultimo processo
     processos.forEach(function(processo) {
@@ -147,7 +136,11 @@ function ajustarFormatoSaida(processos, quantum) {
         const newWaitTimes = sortedProcessos
             .filter((processo) => processo.label === label)
             .reduce((acc, {tempoDeChegada, duracao}) => {
-                let startWait = Math.trunc(tempoDeChegada / quantum) === 1 ? tempoDeChegada : Math.ceil(tempoDeChegada / quantum);
+                let startWait = 
+                    Math.trunc(tempoDeChegada / quantum) === 1 || 
+                    Math.trunc(tempoDeChegada / quantum) === quantum 
+                    ? tempoDeChegada
+                    : Math.ceil(tempoDeChegada / quantum) + 1;
 
                 acc.push({
                     startTime: startWait,
