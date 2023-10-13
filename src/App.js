@@ -64,8 +64,6 @@ function App() {
       const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
       const newItemsRR = splitIntervals(resultadoRR.resultado);
 
-      // console.log(resultadoRR.resultado);
-      // console.log(newItemsRR);
       setResultadosArray([resultadoRR, resultadoSJF, resultadoSRTF]);
       setResultadosNewItems([newItemsRR, newItemsSJF, newItemsSRTF]);
       setDisplay(true);
