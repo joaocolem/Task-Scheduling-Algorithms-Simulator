@@ -3,61 +3,19 @@
 [x] Se a duracao do procecsso for maior do que o quantum, jogar o restante da duracao para o final da fila.
     [x] Alterar startime de processos que irao para o final da fila
 [x] Ajustar tempoAtual e o resultado
+[] Ajustar formato do resultado
 [] Ajustar waitTimes
 */
 
+import { all } from "q";
+
 function calculateRR(processos, quantum) {
     const resultado = [];
-
-    let tempoAtual = 0;
-    let tempoTotalExecucao = 0;
-    let tempoTotalEspera = 0;
-    let trocasDeContexto = -1;
-    let label = "Round Robin";
     
     const newProcessos = normalize(processos, quantum);
+    const metricas = calcularMetricas(newProcessos);
     
-    // while(newProcessos.length > 0) {
-    //     if (newProcessos.length === 0) {
-    //         tempoAtual++;
-    //     }
-    //     const proximoProcesso = newProcessos.shift();
-    //     const startTime = proximoProcesso.tempoDeChegada;
-    //     const endTime = startTime + proximoProcesso.duracao;
-
-    //     //waitime 
-    //     const waitTime = Math.abs(startTime - newProcessos.length);
-
-    //     resultado.push({
-    //         label: proximoProcesso.label,
-    //         times: [{ startTime, duration: proximoProcesso.duracao }],
-    //         waitTimes: [{ startTime: proximoProcesso.tempoDeChegada, duration: waitTime }],
-    //     });
-
-    //     tempoTotalExecucao += endTime - startTime;
-    //     tempoTotalEspera += waitTime;
-    //     tempoAtual += quantum;
-    //     trocasDeContexto++;
-    // }
-
-    // // Ordenar o resultado por label
-    resultado.sort((a, b) => a.label.localeCompare(b.label));
-
-    // Calcular o tempo médio de execução e o tempo médio de espera
-    const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
-    const tempoMedioEspera = tempoTotalEspera / resultado.length;
-
-    // Criar o objeto que contém o resultado e as métricas
-    const resultadoComMetricas = {
-        resultado,
-        metricas: {
-        label,
-        tempoMedioExecucao,
-        tempoMedioEspera,
-        trocasDeContexto,
-        },
-    };
-    return resultadoComMetricas;
+    return metricas;
 }
 
 function normalize(processos, quantum) {
@@ -65,6 +23,7 @@ function normalize(processos, quantum) {
 
     newProcessos = ajustarDuracaoQuantum(newProcessos, quantum);
     newProcessos = ajustarTempoDeChegadaQuantum(newProcessos, quantum);
+    newProcessos = ajustarFormatoSaida(newProcessos, quantum);
 
     return newProcessos;
 }
@@ -155,6 +114,85 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     });
 
     return processos;
+}
+
+function ajustarFormatoSaida(processos, quantum) {
+    const sortedProcessos = processos.sort((a, b) => a.label - b.label);
+    const allLabels = [];
+
+    sortedProcessos.forEach(function(processo) {
+        allLabels.push(processo.label);
+    });
+
+    const uniqueLabels = new Set(allLabels);
+
+    const result = [];
+
+    uniqueLabels.forEach(function(label) {
+        const processo = {
+            label,
+            times: [],
+            waitTimes: [],
+        }
+
+        const newTimes = sortedProcessos
+            .filter((processo) => processo.label === label)
+            .reduce((acc, {tempoDeChegada, duracao}) => {
+               acc.push({startTime: tempoDeChegada, duration: duracao});
+               return acc;
+            }, []);
+       
+        processo.times = [...newTimes];
+        
+        const newWaitTimes = sortedProcessos
+            .filter((processo) => processo.label === label)
+            .reduce((acc, {tempoDeChegada, duracao}) => {
+                let startWait = Math.trunc(tempoDeChegada / quantum) === 1 ? tempoDeChegada : Math.ceil(tempoDeChegada / quantum);
+
+                acc.push({
+                    startTime: startWait,
+                    duration: quantum,
+                });
+                return acc;
+            }, []);
+        
+        processo.waitTimes = [...newWaitTimes];
+
+        result.push(processo);
+    });
+
+    return result;
+}
+
+function calcularMetricas(processos) {
+    let label = "Round Robin";
+    const qntProcessos = processos.length;
+    const metricas = {
+        resultado: processos,
+        metricas: {
+            label,
+            tempoMedioExecucao: 0,
+            tempoMedioEspera: 0,
+            trocasDeContexto: 0
+        }
+    };
+
+    processos.forEach(function(processo) {
+        const tempoProcesso = processo.times.reduce((acc, value) => {
+            acc.tempoMedioExecucao += value.duration / qntProcessos;
+            acc.tempoMedioEspera += Math.abs(value.startTime - value.duration)/ qntProcessos;
+            acc.trocasDeContexto++;
+
+            return acc;
+        },
+        {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
+
+        metricas.metricas.tempoMedioExecucao += Math.ceil(tempoProcesso.tempoMedioExecucao);
+        metricas.metricas.tempoMedioEspera += Math.ceil(tempoProcesso.tempoMedioEspera);
+        metricas.metricas.trocasDeContexto += tempoProcesso.trocasDeContexto;
+    });
+
+    return metricas;
 }
 
 export default calculateRR;
