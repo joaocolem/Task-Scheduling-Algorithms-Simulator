@@ -1,7 +1,8 @@
 function calculateRR(processos, quantum) {
     const newProcessos = normalize(processos, quantum);
     const metricas = calcularMetricas(newProcessos);
-    
+
+    console.log(metricas);
     return metricas;
 }
 
@@ -43,12 +44,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     // filtrar pela label
     let duracaoProcAnterior = 0;
 
-    const labels = [];
-    processos.forEach(function(processo){
-        if(!labels.includes(processo.label)) {
-            labels.push(processo.label);
-        }
-    });
+    const labels = getLabelProcessos(processos);
 
     //se houver mais de um objeto jogar objetos para o final da fila
     const procMaisDeUmObjeto = [];
@@ -109,17 +105,11 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
 
 function ajustarFormatoSaida(processos, quantum) {
     const sortedProcessos = processos.sort((a, b) => a.label - b.label);
-    const allLabels = [];
-
-    sortedProcessos.forEach(function(processo) {
-        allLabels.push(processo.label);
-    });
-
-    const uniqueLabels = new Set(allLabels);
+    const lables = getLabelProcessos(sortedProcessos);
 
     const result = [];
 
-    uniqueLabels.forEach(function(label) {
+    lables.forEach(function(label) {
         const processo = {
             label,
             times: [],
@@ -188,6 +178,10 @@ function calcularMetricas(processos) {
     });
 
     return metricas;
+}
+
+function getLabelProcessos(processos) {
+    return new Set(processos.map(processo =>processo.label));
 }
 
 export default calculateRR;
