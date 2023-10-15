@@ -93,10 +93,13 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     //Junta os arrays
     [...primeirosProcessos,...restoProcessos, ...procFinalFila].forEach(function(processo) {
         if (processo.tempoDeChegada < duracaoProcAnterior) {
-            processo.tempoDeChegada = duracaoProcAnterior;
+            processo.inicioProcesso = duracaoProcAnterior;
+        } else {
+            processo.inicioProcesso = processo.tempoDeChegada;
         }
 
-        duracaoProcAnterior = quantum + processo.tempoDeChegada;
+        duracaoProcAnterior = processo.duracao < quantum ? processo.inicioProcesso + processo.duracao: processo.inicioProcesso + quantum;
+
         newProcessos.push(processo);
     });
 
@@ -118,14 +121,14 @@ function ajustarFormatoSaida(processos, quantum) {
 
         const newTimes = sortedProcessos
             .filter((processo) => processo.label === label)
-            .reduce((acc, {tempoDeChegada, duracao}) => {
-               acc.push({startTime: tempoDeChegada, duration: duracao});
+            .reduce((acc, {inicioProcesso, duracao}) => {
+               acc.push({startTime: inicioProcesso, duration: duracao});
                return acc;
             }, []);
        
         processo.times = [...newTimes];
 
-        processo.waitTimes = setarWaitTimes(sortedProcessos, quantum, label);
+        processo.waitTimes = setarWaitTimes(sortedProcessos, label);
 
         result.push(processo);
     });
@@ -164,12 +167,12 @@ function calcularMetricas(processos) {
     return metricas;
 }
 
-function setarWaitTimes(processos, quantum, label) {
+function setarWaitTimes(processos, label) {
     const mesmosProcessos = processos.filter((processo) => processo.label === label);
 
     const firstProcesso = mesmosProcessos.slice(0, 1)[0];
     const lastProcesso = mesmosProcessos.slice(-1)[0];
-    const duration = lastProcesso.tempoDeChegada - firstProcesso.tempoDeChegada;
+    const duration = lastProcesso.inicioProcesso - firstProcesso.tempoDeChegada;
 
     const waitTime = [{startTime: firstProcesso.tempoDeChegada, duration: duration}];
 
