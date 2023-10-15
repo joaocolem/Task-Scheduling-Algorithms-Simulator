@@ -2,7 +2,6 @@ function calculateRR(processos, quantum) {
     const newProcessos = normalize(processos, quantum);
     const metricas = calcularMetricas(newProcessos);
 
-    console.log(metricas);
     return metricas;
 }
 
@@ -125,23 +124,7 @@ function ajustarFormatoSaida(processos, quantum) {
             }, []);
        
         processo.times = [...newTimes];
-        
-        // const newWaitTimes = sortedProcessos
-        //     .filter((processo) => processo.label === label)
-        //     .reduce((acc, {tempoDeChegada, duracao}) => {
-        //         let startWait = 
-        //             Math.trunc(tempoDeChegada / quantum) === 1 || 
-        //             Math.trunc(tempoDeChegada / quantum) === quantum 
-        //             ? tempoDeChegada
-        //             : Math.ceil(tempoDeChegada / quantum) + 1;
 
-        //         acc.push({
-        //             startTime: startWait,
-        //             duration: quantum,
-        //         });
-        //         return acc;
-        //     }, []);
-        
         processo.waitTimes = setarWaitTimes(sortedProcessos, quantum, label);
 
         result.push(processo);
@@ -186,7 +169,7 @@ function setarWaitTimes(processos, quantum, label) {
 
     const firstProcesso = mesmosProcessos.slice(0, 1)[0];
     const lastProcesso = mesmosProcessos.slice(-1)[0];
-    const duration = lastProcesso.tempoDeChegada - firstProcesso.tempoDeChegada + quantum;
+    const duration = lastProcesso.tempoDeChegada - firstProcesso.tempoDeChegada;
 
     const waitTime = [{startTime: firstProcesso.tempoDeChegada, duration: duration}];
 
