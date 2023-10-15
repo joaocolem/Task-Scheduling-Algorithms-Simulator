@@ -2,7 +2,6 @@ function calculateRR(processos, quantum) {
     const newProcessos = normalize(processos, quantum);
     const metricas = calcularMetricas(newProcessos);
 
-    console.log(metricas);
     return metricas;
 }
 
@@ -77,6 +76,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     //intercalar objetos a mais, um de cada
     const procFinalFila = [];
     const maxCont = [...procMaisDeUmObjeto].sort((a, b) => b.length - a.length)[0].length - 1;
+
     let cont = 0;
 
     while(cont <= maxCont) {
@@ -86,18 +86,18 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
         }
         cont++;
     }
-
-    //Junta os arrays
-    const newProcessos = restoProcessos.concat(primeirosProcessos.concat(procFinalFila));
-    newProcessos.sort((a, b) => a.label - b.label);
-
+    
     // Seta tempo de chegada com base na duracao do ultimo processo
-    newProcessos.forEach(function(processo) {
+    const newProcessos = [];
+    
+    //Junta os arrays
+    [...primeirosProcessos,...restoProcessos, ...procFinalFila].forEach(function(processo) {
         if (processo.tempoDeChegada < duracaoProcAnterior) {
             processo.tempoDeChegada = duracaoProcAnterior;
         }
 
         duracaoProcAnterior = quantum + processo.tempoDeChegada;
+        newProcessos.push(processo);
     });
 
     return newProcessos;
@@ -125,23 +125,23 @@ function ajustarFormatoSaida(processos, quantum) {
        
         processo.times = [...newTimes];
         
-        const newWaitTimes = sortedProcessos
-            .filter((processo) => processo.label === label)
-            .reduce((acc, {tempoDeChegada, duracao}) => {
-                let startWait = 
-                    Math.trunc(tempoDeChegada / quantum) === 1 || 
-                    Math.trunc(tempoDeChegada / quantum) === quantum 
-                    ? tempoDeChegada
-                    : Math.ceil(tempoDeChegada / quantum) + 1;
+        // const newWaitTimes = sortedProcessos
+        //     .filter((processo) => processo.label === label)
+        //     .reduce((acc, {tempoDeChegada, duracao}) => {
+        //         let startWait = 
+        //             Math.trunc(tempoDeChegada / quantum) === 1 || 
+        //             Math.trunc(tempoDeChegada / quantum) === quantum 
+        //             ? tempoDeChegada
+        //             : Math.ceil(tempoDeChegada / quantum) + 1;
 
-                acc.push({
-                    startTime: startWait,
-                    duration: quantum,
-                });
-                return acc;
-            }, []);
+        //         acc.push({
+        //             startTime: startWait,
+        //             duration: quantum,
+        //         });
+        //         return acc;
+        //     }, []);
         
-        processo.waitTimes = [...newWaitTimes];
+        processo.waitTimes = setarWaitTimes(sortedProcessos, quantum, label);
 
         result.push(processo);
     });
@@ -178,6 +178,22 @@ function calcularMetricas(processos) {
     });
 
     return metricas;
+}
+
+/*
+    [] pegar o primeiro processo e setar um waitTime ate o ultimo processo
+    [] tentar separar o waitTimes dentro das metricas. Ou ter apenas um waitTimes
+*/
+
+function setarWaitTimes(processos, quantum, label) {
+    const mesmosProcessos = processos.filter((processo) => processo.label === label);
+
+    const firstProcesso = mesmosProcessos.slice(0, 1)[0];
+    const lastProcesso = mesmosProcessos.slice(-1)[0];
+
+    const waitTime = [{startTime: firstProcesso.tempoDeChegada, duration: lastProcesso.tempoDeChegada + quantum}];
+
+    return waitTime;
 }
 
 function getLabelProcessos(processos) {
