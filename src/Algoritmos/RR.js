@@ -2,6 +2,7 @@ function calculateRR(processos, quantum) {
     const newProcessos = normalize(processos, quantum);
     const metricas = calcularMetricas(newProcessos);
 
+    console.log(metricas);
     return metricas;
 }
 
@@ -180,18 +181,14 @@ function calcularMetricas(processos) {
     return metricas;
 }
 
-/*
-    [] pegar o primeiro processo e setar um waitTime ate o ultimo processo
-    [] tentar separar o waitTimes dentro das metricas. Ou ter apenas um waitTimes
-*/
-
 function setarWaitTimes(processos, quantum, label) {
     const mesmosProcessos = processos.filter((processo) => processo.label === label);
 
     const firstProcesso = mesmosProcessos.slice(0, 1)[0];
     const lastProcesso = mesmosProcessos.slice(-1)[0];
+    const duration = lastProcesso.tempoDeChegada - firstProcesso.tempoDeChegada + quantum;
 
-    const waitTime = [{startTime: firstProcesso.tempoDeChegada, duration: lastProcesso.tempoDeChegada + quantum}];
+    const waitTime = [{startTime: firstProcesso.tempoDeChegada, duration: duration}];
 
     return waitTime;
 }
