@@ -64,7 +64,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
         }
     });
 
-    // VERIFICA A POSSIBILIDADE DE EXECUTAR MAIS UM QUANTUM DO PROCESSO EM SEQUENCIA
+    //VERIFICA A POSSIBILIDADE DE EXECUTAR MAIS UM QUANTUM DO PROCESSO EM SEQUENCIA
     for(let i=0; i< procMaisDeUmObjeto.length; i++){
         let n = 2;
 
@@ -92,17 +92,19 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     }
 
     //Junta os arrays
-    processos = restoProcessos.concat(primeirosProcessos.concat(procFinalFila));
+    const newProcessos = restoProcessos.concat(primeirosProcessos.concat(procFinalFila));
+    newProcessos.sort((a, b) => a.label - b.label);
 
-    //Seta tempo de chegada com base na duracao do ultimo processo
-    processos.forEach(function(processo) {
+    // Seta tempo de chegada com base na duracao do ultimo processo
+    newProcessos.forEach(function(processo) {
         if (processo.tempoDeChegada < duracaoProcAnterior) {
             processo.tempoDeChegada = duracaoProcAnterior;
         }
+
         duracaoProcAnterior = quantum + processo.tempoDeChegada;
     });
 
-    return processos;
+    return newProcessos;
 }
 
 function ajustarFormatoSaida(processos, quantum) {
