@@ -40,17 +40,34 @@ function ajustarDuracaoQuantum(processos, quantum) {
 }
 
 function ajustarTempoDeChegadaQuantum(processos, quantum) {
-    // filtrar pela label
-    let duracaoProcAnterior = 0;
+    /*
+        [] Pegar processos do quantum atual
+            [] Executar um quantum de cada processo
+            [] guardar processos que ainda precisam ser executados
+            [] criar array com os processos ate o momento
+            [] mandar proximo quantum do processo para o final dos ultimos processos ate o momento
+        [] Verificar se chegaram novos processos no proximo quantum
+            [] filtrar processos, pegar somente processos diferentes dos que estao no array de processos ate o momento
+            [] se nao, executa mais um quantum dos processos que ainda precisam de ser executados
+            [] se sim, executa um quantum do processo
+    */
 
+    // filtrar pela label
+    const maxDuracao = getMaxDuracao(processos);
+
+    let duracaoProcAnterior = 0;
+    let tempoAtual = quantum;
+    
     const labels = getLabelProcessos(processos);
 
     //se houver mais de um objeto jogar objetos para o final da fila
     const procMaisDeUmObjeto = [];
     const primeirosProcessos = [];
     const restoProcessos = [];
+
     labels.forEach(function(label){
         let procMesmaLabel = processos.filter((proc) => proc.label === label);
+
         if (procMesmaLabel.length > 1) {
             primeirosProcessos.push(procMesmaLabel.splice(0, 1)[0]);//Remove primeiro elemento do array
             procMaisDeUmObjeto.push(procMesmaLabel);
@@ -183,4 +200,7 @@ function getLabelProcessos(processos) {
     return new Set(processos.map(processo =>processo.label));
 }
 
+function getMaxDuracao(processos) {
+    return processos.reduce((acc, processo) => acc + processo.duracao, 0);
+}
 export default calculateRR;
