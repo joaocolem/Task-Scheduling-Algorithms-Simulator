@@ -59,7 +59,7 @@ function App() {
       const resultadoSJF = calcularSJF(processos.map(processo => ({ ...processo })));
       const resultadoSRTF = calcularSRTF(processos.map(processo => ({ ...processo })));
       const resultadoRR = calcularRR(processos.map(processo => ({...processo})), selectedInfo.quantum);
-      const resultadoPRIOc = calcularSJF(processos.map(processo => ({ ...processo })));
+      const resultadoPRIOc = calcularPRIOc(processos.map(processo => ({ ...processo })));
       
       // Formatar a saída para o formato "items"
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
