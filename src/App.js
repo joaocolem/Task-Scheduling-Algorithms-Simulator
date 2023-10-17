@@ -6,6 +6,7 @@ import './App.css';
 import  calcularSJF  from './Algoritmos/SJF';
 import  calcularSRTF from './Algoritmos/SRTF';
 import calcularRR from './Algoritmos/RR';
+import calcularPRIOc from './Algoritmos/PRIOc';
 
 import TabelaResultados from './components/Tabela/TabelaResultados';
 import SchedulerSelector from './components/Seletor/SchedulerSelector';
@@ -58,14 +59,16 @@ function App() {
       const resultadoSJF = calcularSJF(processos.map(processo => ({ ...processo })));
       const resultadoSRTF = calcularSRTF(processos.map(processo => ({ ...processo })));
       const resultadoRR = calcularRR(processos.map(processo => ({...processo})), selectedInfo.quantum);
+      const resultadoPRIOc = calcularSJF(processos.map(processo => ({ ...processo })));
       
       // Formatar a saída para o formato "items"
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
       const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
       const newItemsRR = splitIntervals(resultadoRR.resultado);
+      const newItemsPRIOc = splitIntervals(resultadoPRIOc.resultado);
 
-      setResultadosArray([resultadoRR, resultadoSJF, resultadoSRTF]);
-      setResultadosNewItems([newItemsRR, newItemsSJF, newItemsSRTF]);
+      setResultadosArray([resultadoRR, resultadoSJF, resultadoSRTF, resultadoPRIOc]);
+      setResultadosNewItems([newItemsRR, newItemsSJF, newItemsSRTF, newItemsPRIOc]);
       setDisplay(true);
     }
   }, [selectedInfo]);
