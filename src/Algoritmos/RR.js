@@ -41,7 +41,7 @@ function ajustarDuracaoQuantum(processos, quantum) {
 
 function ajustarTempoDeChegadaQuantum(processos, quantum) {
     /*
-        [] Pegar processos do quantum atual
+        [x] Pegar processos do quantum atual
             [] Executar um quantum de cada processo
             [] guardar processos que ainda precisam ser executados
             [] criar array com os processos ate o momento
@@ -57,15 +57,22 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
 
     let duracaoProcAnterior = 0;
     let tempoAtual = quantum;
-    
-    const labels = getLabelProcessos(processos);
+    let processosDisponiveis = [];
+
+    while(tempoAtual <= maxDuracao) {
+        processosDisponiveis = getProcessosDisponiveis(processos, tempoAtual, quantum);
+
+        console.log(processosDisponiveis);
+
+        tempoAtual += quantum;
+    }
 
     //se houver mais de um objeto jogar objetos para o final da fila
     const procMaisDeUmObjeto = [];
     const primeirosProcessos = [];
     const restoProcessos = [];
 
-    labels.forEach(function(label){
+    processosDisponiveis.forEach(function(label){
         let procMesmaLabel = processos.filter((proc) => proc.label === label);
 
         if (procMesmaLabel.length > 1) {
@@ -125,7 +132,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
 
 function ajustarFormatoSaida(processos, quantum) {
     const sortedProcessos = processos.sort((a, b) => a.label - b.label);
-    const lables = getLabelProcessos(sortedProcessos);
+    const lables = getProcessosDisponiveis(sortedProcessos);
 
     const result = [];
 
@@ -196,8 +203,14 @@ function setarWaitTimes(processos, label) {
     return waitTime;
 }
 
-function getLabelProcessos(processos) {
-    return new Set(processos.map(processo =>processo.label));
+function getProcessosDisponiveis(processos, tempoAtual, quantum) {
+    return new Set(
+        processos
+        .filter((processo) => 
+            processo.tempoDeChegada < tempoAtual 
+            && processo.tempoDeChegada >= tempoAtual - quantum
+        )
+        .map(processo =>processo.label));
 }
 
 function getMaxDuracao(processos) {
