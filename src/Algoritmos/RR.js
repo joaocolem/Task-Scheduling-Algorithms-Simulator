@@ -10,7 +10,7 @@ function normalize(processos, quantum) {
 
     newProcessos = ajustarDuracaoQuantum(newProcessos, quantum);
     newProcessos = ajustarTempoDeChegadaQuantum(newProcessos, quantum);
-    newProcessos = ajustarFormatoSaida(newProcessos, quantum);
+    newProcessos = ajustarFormatoSaida(newProcessos);
 
     return newProcessos;
 }
@@ -40,82 +40,60 @@ function ajustarDuracaoQuantum(processos, quantum) {
 }
 
 function ajustarTempoDeChegadaQuantum(processos, quantum) {
-    /*
-        [x] Pegar processos do quantum atual
-            [] Executar um quantum de cada processo
-            [] guardar processos que ainda precisam ser executados
-            [] criar array com os processos ate o momento
-            [] mandar proximo quantum do processo para o final dos ultimos processos ate o momento
-        [] Verificar se chegaram novos processos no proximo quantum
-            [] filtrar processos, pegar somente processos diferentes dos que estao no array de processos ate o momento
-            [] se nao, executa mais um quantum dos processos que ainda precisam de ser executados
-            [] se sim, executa um quantum do processo
-    */
-
     // filtrar pela label
-    const maxDuracao = getMaxDuracao(processos);
+    const maxDuracao = getMaxDuracao(processos, quantum);
+    const totalProcessos = getLabelProcessos(processos).size;
 
     let duracaoProcAnterior = 0;
     let tempoAtual = quantum;
-    let processosDisponiveis = [];
+    let labelsProcessosDisponiveis = [];
+    let indexProximoProcesso = 0;
 
-    while(tempoAtual <= maxDuracao) {
-        processosDisponiveis = getProcessosDisponiveis(processos, tempoAtual, quantum);
+    const processosEsperando = [];
+    const processosProntos = [];
 
-        console.log(processosDisponiveis);
+    function trocaStatusProcesso (arrayWait, arrayReady, indexProximoProcesso) {
+        let proximoProcessoFila = arrayWait[indexProximoProcesso]?.splice(0,1)[0]; //Remove processo da estado de esperando
+        if (proximoProcessoFila !== undefined ) arrayReady.push(proximoProcessoFila); //Adiciona o processo no estado pronto
+    }
 
+    while(tempoAtual <= maxDuracao) { //mudar quantum para maxDuracao
+        labelsProcessosDisponiveis = getLabelProcessosDisponiveis(processos, tempoAtual, quantum);
+
+        if(indexProximoProcesso === totalProcessos) {
+            indexProximoProcesso = 0;
+        }
+        
+        if(!labelsProcessosDisponiveis.size) {
+            if (processosEsperando.length > 0) {
+                trocaStatusProcesso(processosEsperando, processosProntos, indexProximoProcesso);
+
+                indexProximoProcesso += 1;
+                tempoAtual += quantum;
+            }
+            continue;
+        };
+
+        labelsProcessosDisponiveis.forEach(function(label){
+            let processosMesmaLabel = processos.filter((proc) => proc.label === label);
+    
+            if (processosMesmaLabel.length > 1) {
+                processosProntos.push(processosMesmaLabel.splice(0, 1)[0]);//Remove primeiro elemento do array
+                processosEsperando.push(processosMesmaLabel);
+            } else {
+                processosProntos.push(processosMesmaLabel[0]);
+            }
+
+        });
+
+        trocaStatusProcesso(processosEsperando, processosProntos, indexProximoProcesso);
+
+        indexProximoProcesso += 1;
         tempoAtual += quantum;
     }
 
-    //se houver mais de um objeto jogar objetos para o final da fila
-    const procMaisDeUmObjeto = [];
-    const primeirosProcessos = [];
-    const restoProcessos = [];
-
-    processosDisponiveis.forEach(function(label){
-        let procMesmaLabel = processos.filter((proc) => proc.label === label);
-
-        if (procMesmaLabel.length > 1) {
-            primeirosProcessos.push(procMesmaLabel.splice(0, 1)[0]);//Remove primeiro elemento do array
-            procMaisDeUmObjeto.push(procMesmaLabel);
-        } else {
-            restoProcessos.push(procMesmaLabel[0]);
-        }
-    });
-
-    //VERIFICA A POSSIBILIDADE DE EXECUTAR MAIS UM QUANTUM DO PROCESSO EM SEQUENCIA
-    for(let i=0; i< procMaisDeUmObjeto.length; i++){
-        let n = 2;
-
-        while(procMaisDeUmObjeto[i][0]?.tempoDeChegada + quantum**n - 1<= primeirosProcessos[i + 1]?.tempoDeChegada) {
-            let processo = procMaisDeUmObjeto[i].shift();
-            
-            primeirosProcessos.push(processo);
-            n++;
-        }
-    }
-
-    primeirosProcessos.sort((a, b)=> a.tempoDeChegada - b.tempoDeChegada);
-
-    //intercalar objetos a mais, um de cada
-    const procFinalFila = [];
-    const maxCont = [...procMaisDeUmObjeto].sort((a, b) => b.length - a.length)[0].length - 1;
-
-    let cont = 0;
-
-    while(cont <= maxCont) {
-        for(let i = 0; i < procMaisDeUmObjeto.length; i++){
-            let object = procMaisDeUmObjeto[i][cont];
-            if(object !== undefined) procFinalFila.push(object); 
-        }
-        cont++;
-    }
-    
-    // Seta tempo de chegada com base na duracao do ultimo processo
-    const newProcessos = [];
-    
     //Junta os arrays
-    [...primeirosProcessos,...restoProcessos, ...procFinalFila].forEach(function(processo) {
+    processosProntos.forEach(function(processo) {
         if (processo.tempoDeChegada < duracaoProcAnterior) {
             processo.inicioProcesso = duracaoProcAnterior;
         } else {
@@ -123,16 +101,14 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
         }
 
         duracaoProcAnterior = processo.duracao < quantum ? processo.inicioProcesso + processo.duracao: processo.inicioProcesso + quantum;
-
-        newProcessos.push(processo);
     });
 
-    return newProcessos;
+    return processosProntos;
 }
 
-function ajustarFormatoSaida(processos, quantum) {
+function ajustarFormatoSaida(processos) {
     const sortedProcessos = processos.sort((a, b) => a.label - b.label);
-    const lables = getProcessosDisponiveis(sortedProcessos);
+    const lables = getLabelProcessos(sortedProcessos);
 
     const result = [];
 
@@ -203,7 +179,7 @@ function setarWaitTimes(processos, label) {
     return waitTime;
 }
 
-function getProcessosDisponiveis(processos, tempoAtual, quantum) {
+function getLabelProcessosDisponiveis(processos, tempoAtual, quantum) {
     return new Set(
         processos
         .filter((processo) => 
@@ -213,7 +189,13 @@ function getProcessosDisponiveis(processos, tempoAtual, quantum) {
         .map(processo =>processo.label));
 }
 
-function getMaxDuracao(processos) {
-    return processos.reduce((acc, processo) => acc + processo.duracao, 0);
+function getLabelProcessos(processos) {
+    return new Set(processos.map(processo =>processo.label));
 }
+
+function getMaxDuracao(processos, quantum) {
+    let max = processos.reduce((acc, processo) => acc + processo.duracao, 0);
+    return max % quantum !== 0 ? max + 1 : max; 
+}
+
 export default calculateRR;
