@@ -148,10 +148,12 @@ function calcularMetricas(processos) {
             trocasDeContexto: 0
         }
     };
+
+    console.log(totalDuracaoProcesso(processos));
     const tempo = processos
         .map(({times, waitTimes}) => {return {times, waitTimes}})
         .reduce((acc, proc) => { // vai ter que somar a duracao dos times e depois subtrair pela duracao do waitTimes
-            console.log(proc);
+            // console.log(proc);
             // let time = proc.times.pop();
             // let waitTime = proc.waitTimes.pop();
 
@@ -163,7 +165,7 @@ function calcularMetricas(processos) {
             return acc;
         }, {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
     
-    console.log(tempo);
+    // console.log(tempo);
 
     processos.forEach(function(processo) {
         const tempoProcesso = processo.times.reduce((acc, value) => {
@@ -184,6 +186,17 @@ function calcularMetricas(processos) {
     });
 
     return metricas;
+}
+
+function totalDuracaoProcesso(processos) {
+    return processos
+        .slice()
+        .map((processo) => {
+            const duracaoTotal = processo.times
+                .reduce((total, {_, duration}) => total + duration, 0);
+
+            return {label: processo.label, total: duracaoTotal}
+        })
 }
 
 function setarWaitTimes(processos, label) {
