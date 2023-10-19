@@ -148,10 +148,28 @@ function calcularMetricas(processos) {
             trocasDeContexto: 0
         }
     };
+    const tempo = processos
+        .map(({times, waitTimes}) => {return {times, waitTimes}})
+        .reduce((acc, proc) => { // vai ter que somar a duracao dos times e depois subtrair pela duracao do waitTimes
+            console.log(proc);
+            // let time = proc.times.pop();
+            // let waitTime = proc.waitTimes.pop();
+
+            // let mediaExecucao = (time.startTime + 1) / qntProcessos;
+            // let mediaEspera = waitTime.duration - waitTime.startTime / qntProcessos;
+
+            // acc.tempoMedioExecucao = mediaExecucao > acc.tempoMedioExecucao ? mediaExecucao : acc.tempoMedioExecucao;
+
+            return acc;
+        }, {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
+    
+    console.log(tempo);
 
     processos.forEach(function(processo) {
         const tempoProcesso = processo.times.reduce((acc, value) => {
-            acc.tempoMedioExecucao += value.duration / qntProcessos;
+            let mediaExecucao = (value.startTime + 1) / qntProcessos;
+
+            acc.tempoMedioExecucao = mediaExecucao > acc.tempoMedioExecucao ? mediaExecucao : acc.tempoMedioExecucao;
             acc.tempoMedioEspera += Math.abs(value.startTime - value.duration)/ qntProcessos;
             acc.trocasDeContexto++;
 
@@ -159,6 +177,7 @@ function calcularMetricas(processos) {
         },
         {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
 
+        // console.log(tempoProcesso);
         metricas.metricas.tempoMedioExecucao += Math.ceil(tempoProcesso.tempoMedioExecucao);
         metricas.metricas.tempoMedioEspera += Math.ceil(tempoProcesso.tempoMedioEspera);
         metricas.metricas.trocasDeContexto += tempoProcesso.trocasDeContexto;
