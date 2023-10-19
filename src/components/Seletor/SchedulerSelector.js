@@ -19,7 +19,7 @@ function SchedulerSelector(props) {
       // Aqui você pode fazer algo com as informações selecionadas, incluindo o índice do algoritmo.
       const selectedInfo = {
         algorithmIndex: selectedAlgorithmIndex,
-        quantum: quantum,
+        quantum: Number.parseInt(quantum),
       };
 
       // Exemplo: Enviar informações selecionadas para um callback no componente pai.

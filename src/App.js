@@ -32,8 +32,9 @@ function splitIntervals(items) {
 
     item.times.forEach((time) => {
       for (let i = 0; i < time.duration; i++) {
+        const newTime = Number.parseInt(time.startTime) + i;
         newItem.times.push({
-          startTime: time.startTime + i,
+          startTime: newTime,
           duration: 1,
         });
       }
@@ -41,8 +42,9 @@ function splitIntervals(items) {
 
     item.waitTimes.forEach((waitTime) => {
       for (let i = 0; i < waitTime.duration; i++) {
+        const newWaitTime = Number.parseInt(waitTime.startTime) + i;
         newItem.waitTimes.push({
-          startTime: waitTime.startTime + i,
+          startTime: newWaitTime,
           duration: 1,
         });
       }
@@ -52,8 +54,6 @@ function splitIntervals(items) {
   });
   return result;
 }
-
-
 
 function App() {
   const [selectedInfo, setSelectedInfo] = useState(null);
@@ -67,14 +67,15 @@ function App() {
       
       const resultadoSJF = calcularSJF(processos.map(processo => ({ ...processo })));
       const resultadoSRTF = calcularSRTF(processos.map(processo => ({ ...processo })));
-      const resultadoRR = calcularRR(processos.map(processo => ({...processo})), 2);
+      const resultadoRR = calcularRR(processos.map(processo => ({...processo})), selectedInfo.quantum);
       
       // Formatar a saída para o formato "items"
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
       const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
+      const newItemsRR = splitIntervals(resultadoRR.resultado);
 
-      setResultadosArray([resultadoSJF, resultadoSRTF]);
-      setResultadosNewItems([newItemsSJF, newItemsSRTF]);
+      setResultadosArray([resultadoRR, resultadoSJF, resultadoSRTF]);
+      setResultadosNewItems([newItemsRR, newItemsSJF, newItemsSRTF]);
       setDisplay(true);
     }
   }, [selectedInfo]);
