@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  margin:0 auto;
 }
 
 .App-logo {
@@ -36,3 +37,32 @@
     transform: rotate(360deg);
   }
 }
+
+.navbar {
+  background-color: #3085C3;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #E3F4F4;
+  font-size: 1rem;
+}
+.navbar h1{
+  font-size: 3rem;
+}
+
+.quantum-label{
+  padding: 1rem;
+  font-weight: bold;
+}
+
+.novo-processo {
+  display: inline-block;
+  text-align: right;
+}
+
+.novo-processo-title {
+  text-align: center;
+}
+.novo-processo-label {
+  padding: 1rem;
+}
+

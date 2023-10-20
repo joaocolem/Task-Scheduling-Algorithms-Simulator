@@ -79,7 +79,7 @@ function App() {
 
   return (
     <div className="App">
-      <div>
+      <div className="navbar">
         <h1>Configurações de Escalonamento</h1>
         <SchedulerSelector onSave={handleSave} />
       </div>

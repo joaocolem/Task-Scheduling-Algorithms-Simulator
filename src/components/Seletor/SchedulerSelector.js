@@ -41,7 +41,7 @@ function SchedulerSelector(props) {
       <br />
       <br />
       <div>
-        <label>Quantum:</label>
+        <label className='quantum-label'>Quantum:</label>
         <input type="number" value={quantum} onChange={handleQuantumChange} />
       </div>
       <br />

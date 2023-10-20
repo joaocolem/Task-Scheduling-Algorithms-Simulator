@@ -46,22 +46,22 @@ const ProcessTable = ({ processes, setProcesses }) => {
           ))}
         </tbody>
       </table>
-      <div>
-        <h3>Novo Processo</h3>
+      <div className='novo-processo'>
+        <h3 className='novo-processo-title'>Novo Processo</h3>
         <div>
-          <label>Label:</label>
+          <label className='novo-processo-label'>Label:</label>
           <input type="text" name="label" value={newProcess.label} onChange={handleInputChange} />
         </div>
         <div>
-          <label>Tempo de Chegada:</label>
+          <label className='novo-processo-label'>Tempo de Chegada:</label>
           <input type="number" name="tempoDeChegada" value={newProcess.tempoDeChegada} onChange={handleInputChange} />
         </div>
         <div>
-          <label>Duração:</label>
+          <label className='novo-processo-label'>Duração:</label>
           <input type="number" name="duracao" value={newProcess.duracao} onChange={handleInputChange} />
         </div>
         <div>
-          <label>Prioridade:</label>
+          <label className='novo-processo-label'>Prioridade:</label>
           <input type="number" name="prioridade" value={newProcess.prioridade} onChange={handleInputChange} />
         </div>
         <button onClick={handleSaveProcess}>Salvar Processo</button>
