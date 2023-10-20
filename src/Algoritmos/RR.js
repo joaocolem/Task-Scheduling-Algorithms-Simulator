@@ -57,7 +57,7 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
         if (proximoProcessoFila !== undefined ) arrayReady.push(proximoProcessoFila); //Adiciona o processo no estado pronto
     }
 
-    while(tempoAtual <= maxDuracao) { //mudar quantum para maxDuracao
+    while(tempoAtual <= maxDuracao) {
         labelsProcessosDisponiveis = getLabelProcessosDisponiveis(processos, tempoAtual, quantum);
 
         if(indexProximoProcesso === totalProcessos) {
@@ -127,7 +127,6 @@ function ajustarFormatoSaida(processos) {
             }, []);
        
         processo.times = [...newTimes];
-
         processo.waitTimes = setarWaitTimes(sortedProcessos, label);
 
         result.push(processo);
@@ -137,8 +136,9 @@ function ajustarFormatoSaida(processos) {
 }
 
 function calcularMetricas(processos) {
-    let label = "Round Robin";
+    const label = "Round Robin";
     const qntProcessos = processos.length;
+    const timeTotalDuration = totalDuracaoProcessos(processos);
     const metricas = {
         resultado: processos,
         metricas: {
@@ -148,42 +148,47 @@ function calcularMetricas(processos) {
             trocasDeContexto: 0
         }
     };
+
     const tempo = processos
-        .map(({times, waitTimes}) => {return {times, waitTimes}})
-        .reduce((acc, proc) => { // vai ter que somar a duracao dos times e depois subtrair pela duracao do waitTimes
-            console.log(proc);
-            // let time = proc.times.pop();
-            // let waitTime = proc.waitTimes.pop();
+        .map(({label, times, waitTimes}) => {
+            return {label, waitTimes}
+        })
+        .reduce((acc, proc) => {
+            let totalDuration = timeTotalDuration.find((process) => process.label === proc.label);
+            let waitTime = proc.waitTimes[0];
 
-            // let mediaExecucao = (time.startTime + 1) / qntProcessos;
-            // let mediaEspera = waitTime.duration - waitTime.startTime / qntProcessos;
+            let mediaExecucao = (waitTime.duration - waitTime.startTime + 1) / qntProcessos;
+            let mediaEspera = (waitTime.duration + 1 - totalDuration.total) / qntProcessos;
 
-            // acc.tempoMedioExecucao = mediaExecucao > acc.tempoMedioExecucao ? mediaExecucao : acc.tempoMedioExecucao;
+            acc.tempoMedioExecucao += mediaExecucao;
+            acc.tempoMedioEspera += mediaEspera;
 
             return acc;
-        }, {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
+        }, {tempoMedioExecucao: 0, tempoMedioEspera: 0});
     
-    console.log(tempo);
-
-    processos.forEach(function(processo) {
-        const tempoProcesso = processo.times.reduce((acc, value) => {
-            let mediaExecucao = (value.startTime + 1) / qntProcessos;
-
-            acc.tempoMedioExecucao = mediaExecucao > acc.tempoMedioExecucao ? mediaExecucao : acc.tempoMedioExecucao;
-            acc.tempoMedioEspera += Math.abs(value.startTime - value.duration)/ qntProcessos;
-            acc.trocasDeContexto++;
-
-            return acc;
-        },
-        {tempoMedioExecucao: 0, tempoMedioEspera: 0, trocasDeContexto: 0});
-
-        // console.log(tempoProcesso);
-        metricas.metricas.tempoMedioExecucao += Math.ceil(tempoProcesso.tempoMedioExecucao);
-        metricas.metricas.tempoMedioEspera += Math.ceil(tempoProcesso.tempoMedioEspera);
-        metricas.metricas.trocasDeContexto += tempoProcesso.trocasDeContexto;
-    });
+    metricas.metricas.tempoMedioExecucao = Number(tempo.tempoMedioExecucao.toFixed(2));
+    metricas.metricas.tempoMedioEspera = Number(tempo.tempoMedioEspera.toFixed(2));
+    metricas.metricas.trocasDeContexto = totalTrocaDeContexto(processos);
 
     return metricas;
+}
+
+function totalDuracaoProcessos(processos) {
+    return processos
+        .slice()
+        .map((processo) => {
+            const duracaoTotal = processo.times
+                .reduce((total, {_, duration}) => total + duration, 0);
+
+            return {label: processo.label, total: duracaoTotal}
+        });
+}
+
+function totalTrocaDeContexto(processos) {
+    return processos
+        .slice()
+        .flatMap((processo) => processo.times)
+        .reduce((total, _) => total + 1, 0) - 1;
 }
 
 function setarWaitTimes(processos, label) {
