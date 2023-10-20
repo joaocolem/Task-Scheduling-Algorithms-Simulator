@@ -16,13 +16,13 @@ function SchedulerSelector(props) {
   const handleSaveClick = () => {
     // Verifique se um algoritmo foi selecionado antes de salvar
     if (selectedAlgorithmIndex !== -1) {
-      // Aqui você pode fazer algo com as informações selecionadas, incluindo o índice do algoritmo.
+     
       const selectedInfo = {
         algorithmIndex: selectedAlgorithmIndex,
         quantum: Number.parseInt(quantum),
       };
 
-      // Exemplo: Enviar informações selecionadas para um callback no componente pai.
+     
       props.onSave(selectedInfo);
     }
   };
