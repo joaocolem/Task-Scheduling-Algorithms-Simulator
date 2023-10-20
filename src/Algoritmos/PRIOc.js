@@ -48,7 +48,7 @@ function calcularPRIOc(processos) {
     resultado.sort((a, b) => a.label.localeCompare(b.label));
   
     // Calcular o tempo médio de execução e o tempo médio de espera
-    const tempoMedioExecucao = tempoTotalExecucao / resultado.length;
+    const tempoMedioExecucao = (tempoTotalExecucao + tempoTotalEspera) / resultado.length;
     const tempoMedioEspera = tempoTotalEspera / resultado.length;
   
     // Criar o objeto que contém o resultado e as métricas
