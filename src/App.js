@@ -71,7 +71,7 @@ function App() {
       setResultadosNewItems([newItemsRR, newItemsSJF, newItemsSRTF, newItemsPRIOc]);
       setDisplay(true);
     }
-  }, [selectedInfo]);
+  }, [selectedInfo, processos]);
 
   const handleSave = (info) => {
     setSelectedInfo(info);

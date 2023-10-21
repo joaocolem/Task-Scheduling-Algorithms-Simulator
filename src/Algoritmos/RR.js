@@ -198,7 +198,7 @@ function totalTrocaDeContexto(processos) {
         }))
         .sort((a, b) => a.startTime - b.startTime)
         .reduce((total, proc) => {
-            if(proc.label != total.ultimaLabel) {
+            if(proc.label !== total.ultimaLabel) {
                 total.trocas += 1;
                 total.ultimaLabel = proc.label
             }
