@@ -149,7 +149,6 @@ function calcularMetricas(processos) {
         }
     };
 
-    console.log(processos);
     const tempo = processos
         .map(({label, times, waitTimes}) => {
             return {label, times, waitTimes}
