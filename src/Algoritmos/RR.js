@@ -69,8 +69,8 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
                 trocaStatusProcesso(processosEsperando, processosProntos, indexProximoProcesso);
 
                 indexProximoProcesso += 1;
-                tempoAtual += quantum;
             }
+            tempoAtual += quantum;
             continue;
         };
 
@@ -138,7 +138,7 @@ function ajustarFormatoSaida(processos) {
 function calcularMetricas(processos) {
     const label = "Round Robin";
     const qntProcessos = processos.length;
-    const timeTotalDuration = totalDuracaoProcessos(processos);
+    const tempoTotalDuracaoProcesso = totalDuracaoProcessos(processos);
     const metricas = {
         resultado: processos,
         metricas: {
@@ -149,16 +149,19 @@ function calcularMetricas(processos) {
         }
     };
 
+    console.log(processos);
     const tempo = processos
         .map(({label, times, waitTimes}) => {
-            return {label, waitTimes}
+            return {label, times, waitTimes}
         })
         .reduce((acc, proc) => {
-            let totalDuration = timeTotalDuration.find((process) => process.label === proc.label);
-            let waitTime = proc.waitTimes[0];
+            const ultimoProcesso = proc.times.slice(-1)[0];
+            const waitTime = proc.waitTimes[0];
+            const totalDuracaoProcesso = tempoTotalDuracaoProcesso.find((process) => process.label === proc.label);
+            const totalTempoExecucao = (ultimoProcesso.startTime + ultimoProcesso.duration) - waitTime.startTime;
 
-            let mediaExecucao = (waitTime.duration - waitTime.startTime + 1) / qntProcessos;
-            let mediaEspera = (waitTime.duration + 1 - totalDuration.total) / qntProcessos;
+            let mediaExecucao = totalTempoExecucao / qntProcessos;
+            let mediaEspera = (totalDuracaoProcesso.total - totalTempoExecucao) / qntProcessos;
 
             acc.tempoMedioExecucao += mediaExecucao;
             acc.tempoMedioEspera += mediaEspera;
@@ -167,7 +170,7 @@ function calcularMetricas(processos) {
         }, {tempoMedioExecucao: 0, tempoMedioEspera: 0});
     
     metricas.metricas.tempoMedioExecucao = Number(tempo.tempoMedioExecucao.toFixed(2));
-    metricas.metricas.tempoMedioEspera = Number(tempo.tempoMedioEspera.toFixed(2));
+    metricas.metricas.tempoMedioEspera = Math.abs(Number(tempo.tempoMedioEspera.toFixed(2)));
     metricas.metricas.trocasDeContexto = totalTrocaDeContexto(processos);
 
     return metricas;
@@ -177,18 +180,31 @@ function totalDuracaoProcessos(processos) {
     return processos
         .slice()
         .map((processo) => {
-            const duracaoTotal = processo.times
-                .reduce((total, {_, duration}) => total + duration, 0);
+            const totalDuration = processo
+                .times.reduce((total, {_, duration}) => total + duration, 0);
 
-            return {label: processo.label, total: duracaoTotal}
+            return {label: processo.label, total: totalDuration}
         });
 }
 
 function totalTrocaDeContexto(processos) {
     return processos
         .slice()
-        .flatMap((processo) => processo.times)
-        .reduce((total, _) => total + 1, 0) - 1;
+        .flatMap((processo) => processo
+            .times
+            .map((time) => {
+                time.label = processo.label
+                return time;
+        }))
+        .sort((a, b) => a.startTime - b.startTime)
+        .reduce((total, proc) => {
+            if(proc.label != total.ultimaLabel) {
+                total.trocas += 1;
+                total.ultimaLabel = proc.label
+            }
+
+            return total;
+        }, {trocas: 0, ultimaLabel: ''}).trocas -= 1;
 }
 
 function setarWaitTimes(processos, label) {
@@ -218,7 +234,7 @@ function getLabelProcessos(processos) {
 }
 
 function getMaxDuracao(processos, quantum) {
-    let max = processos.reduce((acc, processo) => acc + processo.duracao, 0);
+    let max = processos.reduce((acc, processo) => acc + processo.duracao + processo.tempoDeChegada, 0);
     return max % quantum !== 0 ? max + 1 : max; 
 }
 
