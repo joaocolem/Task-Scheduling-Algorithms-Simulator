@@ -43,9 +43,10 @@ function ajustarTempoDeChegadaQuantum(processos, quantum) {
     // filtrar pela label
     const maxDuracao = getMaxDuracao(processos, quantum);
     const totalProcessos = getLabelProcessos(processos).size;
+    const primeiraExecucao = getPrimeiraExecucao(processos);
 
     let duracaoProcAnterior = 0;
-    let tempoAtual = quantum;
+    let tempoAtual = primeiraExecucao.tempoDeChegada;
     let labelsProcessosDisponiveis = [];
     let indexProximoProcesso = 0;
 
@@ -237,4 +238,9 @@ function getMaxDuracao(processos, quantum) {
     return max % quantum !== 0 ? max + 1 : max; 
 }
 
+function getPrimeiraExecucao(processos) {
+    return processos
+        .slice()
+        .sort((a, b) => a.tempoDeChegada - b.tempoDeChegada)[0];
+}
 export default calculateRR;
