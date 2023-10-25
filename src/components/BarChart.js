@@ -21,18 +21,18 @@ class BarChart extends React.Component {
 
     this.state = {
       items: props.items,
-      currentDuration: 0, // Inicialmente, a duração atual é 0.
+      currentDuration: 0, 
     };
 
     this.chartWidth = 1000;
     this.chartHeight = 300;
-    this.numIncrements = 0; // Inicializamos com 0, iremos calcular em componentDidMount.
+    this.numIncrements = 0; 
   }
 
   
 
   componentDidMount() {
-    // Calcule o número de incrementos com base na maior duração de todos os itens.
+
     const maxDuration = Math.max(
       ...this.state.items.map((item) => {
         let maxTime = 0;
@@ -51,7 +51,7 @@ class BarChart extends React.Component {
 
     this.numIncrements = maxDuration + 1;
 
-    // Atualize a duração atual a cada 1 segundo para animar o preenchimento das barras.
+
     this.animationInterval = setInterval(() => {
       if (this.state.currentDuration < maxDuration) {
         this.setState((prevState) => ({
@@ -62,7 +62,7 @@ class BarChart extends React.Component {
   }
 
   componentWillUnmount() {
-    // Certifique-se de limpar o intervalo quando o componente é desmontado.
+  
     clearInterval(this.animationInterval);
   }
 
@@ -107,7 +107,7 @@ class BarChart extends React.Component {
                 width={width}
                 height={30}
                 fill={generateColor(index)}
- // Cor das barras
+
               />
             </g>
           );
@@ -144,7 +144,7 @@ class BarChart extends React.Component {
     const { items } = this.state;
 
     return items.map((item, index) => {
-      const x = (currentDuration / this.numIncrements) * this.chartWidth + 10; // Ajuste a posição X da legenda.
+      const x = (currentDuration / this.numIncrements) * this.chartWidth + 10;
       const y = index * 40 + 15;
 
       return (
@@ -156,13 +156,13 @@ class BarChart extends React.Component {
   }
 
   render() {
-    const { currentDuration } = this.state; // Obtenha a duração atual do estado.
+    const { currentDuration } = this.state; 
 
     return (
       <svg width={this.chartWidth + 200} height={this.chartHeight + 30}>
-        {this.renderXAxis(currentDuration)} {/* Passe a duração atual para o renderXAxis */}
-        {this.renderBars(currentDuration)} {/* Passe a duração atual para o renderBars */}
-        {this.renderLegends(currentDuration)} {/* Passe a duração atual para o renderLegends */}
+        {this.renderXAxis(currentDuration)} 
+        {this.renderBars(currentDuration)}
+        {this.renderLegends(currentDuration)}
       </svg>
     );
   }
