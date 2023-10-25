@@ -374,8 +374,9 @@ function getLabelProcessosDisponiveis(processos, tempoAtual, quantum) {
     return new Set(
         processos
         .filter((processo) => 
-            processo.tempoDeChegada < tempoAtual 
-            && processo.tempoDeChegada >= tempoAtual - quantum
+            (processo.tempoDeChegada < tempoAtual 
+            && processo.tempoDeChegada >= tempoAtual - quantum)
+            || processo.tempoDeChegada >= tempoAtual + quantum
         )
         .map(processo =>processo.label));
 }
