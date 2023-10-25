@@ -5,7 +5,7 @@ function SchedulerSelector(props) {
   const [quantum, setQuantum] = useState('');
 
   const handleAlgorithmChange = (event) => {
-    const selectedIndex = event.target.selectedIndex - 1; // Subtrai 1 para descontar a opção "Selecione um algoritmo"
+    const selectedIndex = event.target.selectedIndex - 1; 
     setSelectedAlgorithmIndex(selectedIndex);
   };
 
@@ -14,7 +14,7 @@ function SchedulerSelector(props) {
   };
 
   const handleSaveClick = () => {
-    // Verifique se um algoritmo foi selecionado antes de salvar
+   
     if (selectedAlgorithmIndex !== -1) {
      
       const selectedInfo = {
