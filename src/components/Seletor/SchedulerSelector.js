@@ -36,7 +36,6 @@ function SchedulerSelector(props) {
         <option value={1}>Shortest Job First (Menor Tarefa Primeiro) - Não Preemptivo</option>
         <option value={2}>Shortest Remaining Time First (Menor Tempo Restante Primeiro) - Preemptivo</option>
         <option value={3}>Escalonamento por Prioridade Cooperativo - Não Preemptivo</option>
-        <option value={4}>Escalonamento por Prioridade Preemptivo</option>
       </select>
       <br />
       <br />
