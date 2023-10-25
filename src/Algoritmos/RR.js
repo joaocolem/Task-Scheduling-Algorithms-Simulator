@@ -1,17 +1,40 @@
+/**
+* Funcao que calcula o processos para o Round-Robin. E retorna os processos com as metricas
+* 
+* @param {[{ label: string, tempoDeChegada: number, duracao: number }]} processos 
+* @param { number } quantum 
+* @returns {
+*  metricas: {
+*      label: string,
+*          tempoDeChegada: number,
+*          duracao: number,
+*          inicioProcesso: number
+*  },
+*  resultado: [{
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ], 
+*   }]
+* }
+*/
 function calculateRR(processos, quantum) {
-    const newProcessos = normalize(processos, quantum); //retorna os processos formatados
-    const metricas = calcularMetricas(newProcessos); // calcula as metricas, como tempo de execucao e espera
+    const newProcessos = normalize(processos, quantum);
+    const metricas = calcularMetricas(newProcessos);
 
     return metricas;
 }
 
 /**
- * Formata os processos para o Escalonador Round-Robin e retorna objeto com de processos formatados
- * 
- * @param {[{ label: string, tempoDeChegada: number, duracao: number }]} processos 
- * @param {number} quantum 
- * @returns {[{processos}]}
- */
+* Formata os processos para o Escalonador Round-Robin e retorna objeto com de processos formatados
+* 
+* @param {[{ label: string, tempoDeChegada: number, duracao: number }]} processos 
+* @param { number } quantum 
+* @returns {[{ processos }]}
+*/
 function normalize(processos, quantum) {
     let newProcessos = [...processos];
 
@@ -23,11 +46,11 @@ function normalize(processos, quantum) {
 }
 
 /**
- * Ajusta a duracao de cada parte dos processos pelo quantum. Retorna os processos com a duracao de cada parte
- * @param {[{ label: string, tempoDeChegada: number, duracao: number }]} processos 
- * @param {number} quantum 
- * @returns {[{ label: string, tempoDeChegada: number, duracao: number }]}
- */
+* Ajusta a duracao de cada parte dos processos pelo quantum. Retorna os processos com a duracao de cada parte
+* @param {[{ label: string, tempoDeChegada: number, duracao: number }]} processos 
+* @param {number} quantum 
+* @returns {[{ label: string, tempoDeChegada: number, duracao: number }]}
+*/
 function ajustarDuracaoQuantum(processos, quantum) {
     const newProcessos = [];
 
@@ -133,6 +156,21 @@ function ajustarInicioExecucaoQuantum(processos, quantum) {
     return processosProntos;
 }
 
+/**
+ * Ajusta o formato da saida para ser lido pelo grafico
+ * @param {[{ label: string, tempoDeChegada: number, duracao: number, inicioProcesso: number }]} processos 
+ * @returns {[
+ *  {
+ *      label: string,
+ *      times: [
+ *          { label: string, startTime: number, duration: number  },
+ *      ],
+ *      waitTimes: [
+ *          { label: string, startTime: number, duration: number },
+ *      ],
+ *  }
+ * ]}
+ */
 function ajustarFormatoSaida(processos) {
     const sortedProcessos = processos.sort((a, b) => a.label - b.label);
     const lables = getLabelProcessos(sortedProcessos);
@@ -162,6 +200,38 @@ function ajustarFormatoSaida(processos) {
     return result;
 }
 
+/**
+* Calcula as metricas como tempo medio de execucao e espera
+* @param {[
+*  {
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ],
+*  }
+* ]} processos
+*
+* @returns {{
+*  metricas: {
+*      label: string,
+*          tempoDeChegada: number,
+*          duracao: number,
+*          inicioProcesso: number
+*  },
+*  resultado: [{
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ], 
+*   }]
+* }}
+*/
 function calcularMetricas(processos) {
     const label = "Round Robin";
     const qntProcessos = processos.length;
@@ -202,6 +272,22 @@ function calcularMetricas(processos) {
     return metricas;
 }
 
+/**
+* Calcula a duracao total de cada processo
+* @param {[
+*  {
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ],
+*  }
+* ]} processos 
+*
+* @returns {{label: processo.label, total: totalDuration}}
+*/
 function totalDuracaoProcessos(processos) {
     return processos
         .slice()
@@ -213,6 +299,21 @@ function totalDuracaoProcessos(processos) {
         });
 }
 
+/**
+* Retorna o total de trocas de contexto e a ultima label 
+* @param {[
+*  {
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ],
+*  }
+* ]} processos 
+* @returns {{trocas: 0, ultimaLabel: ''}};
+*/
 function totalTrocaDeContexto(processos) {
     return processos
         .slice()
@@ -233,6 +334,22 @@ function totalTrocaDeContexto(processos) {
         }, {trocas: 0, ultimaLabel: ''}).trocas -= 1;
 }
 
+/**
+* Seta o tempo de espera de cada processo
+* @param {[
+*  {
+*      label: string,
+*      times: [
+*          { label: string, startTime: number, duration: number  },
+*      ],
+*      waitTimes: [
+*          { label: string, startTime: number, duration: number },
+*      ],
+*  }
+* ]} processos 
+* @param { string } label 
+* @returns {[{startTime: firstProcesso.tempoDeChegada, duration: duration}]}
+*/
 function setarWaitTimes(processos, label) {
     const mesmosProcessos = processos.filter((processo) => processo.label === label);
 
@@ -245,6 +362,14 @@ function setarWaitTimes(processos, label) {
     return waitTime;
 }
 
+/**
+* Retorna as labels que estao no intervalo de tempo entre o quantum e o tempo atual
+* @param {[{ labels: string, tempoDeChegada: number, duracao: number }]} processos 
+* @param { number } tempoAtual 
+* @param { number } quantum 
+* @returns { Set[ string ] }
+*/
+
 function getLabelProcessosDisponiveis(processos, tempoAtual, quantum) {
     return new Set(
         processos
@@ -255,15 +380,31 @@ function getLabelProcessosDisponiveis(processos, tempoAtual, quantum) {
         .map(processo =>processo.label));
 }
 
+/**
+* Retorna todas as labels dos processos
+* @param {[{ labels: string, tempoDeChegada: number, duracao: number }]} processos 
+* @returns { Set[ string ] }
+*/
 function getLabelProcessos(processos) {
     return new Set(processos.map(processo =>processo.label));
 }
 
+/**
+ * Retorna a duracao maxima de todos os processos
+ * @param {[{ labels: string, tempoDeChegada: number, duracao: number }]} processos 
+ * @param { number } quantum 
+ * @returns { number }
+ */
 function getMaxDuracao(processos, quantum) {
     let max = processos.reduce((acc, processo) => acc + processo.duracao + processo.tempoDeChegada, 0);
     return max % quantum !== 0 ? max + 1 : max; 
 }
 
+/**
+ * Retorna o primeiro processo a ser executado
+ * @param {[{ labels: string, tempoDeChegada: number, duracao: number }]} processos 
+ * @returns { labels: string, tempoDeChegada: number, duracao: number }
+ */
 function getPrimeiraExecucao(processos) {
     return processos
         .slice()
