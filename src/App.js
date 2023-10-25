@@ -2,7 +2,6 @@ import React,  { useState, useEffect } from 'react';
 import BarChart from './components/BarChart';
 import './App.css';
 
-// Importe a função calcularSJF do arquivo sjf.js
 import  calcularSJF  from './Algoritmos/SJF';
 import  calcularSRTF from './Algoritmos/SRTF';
 import calcularRR from './Algoritmos/RR';
@@ -13,7 +12,6 @@ import SchedulerSelector from './components/Seletor/SchedulerSelector';
 import ProcessTable from './components/Process/ProcessTable';
 
 
-// Função para dividir todos os intervalos de um array de objetos
 function splitIntervals(items) {
   const result = [];
   items.forEach((item) => {
@@ -61,7 +59,7 @@ function App() {
       const resultadoRR = calcularRR(processos.map(processo => ({...processo})), selectedInfo.quantum);
       const resultadoPRIOc = calcularPRIOc(processos.map(processo => ({ ...processo })));
       
-      // Formatar a saída para o formato "items"
+
       const newItemsSJF = splitIntervals(resultadoSJF.resultado);
       const newItemsSRTF = splitIntervals(resultadoSRTF.resultado);
       const newItemsRR = splitIntervals(resultadoRR.resultado);
